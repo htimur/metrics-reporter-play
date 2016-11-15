@@ -67,6 +67,7 @@ object GraphiteReporterFactory extends ReporterFactory[GraphiteReporter, Graphit
           senderConfig.getString("exchange").get
         )
         case "udp" => GraphiteUDP
+        case _ => Graphite
       }
       case None => Graphite
     }
@@ -83,21 +84,14 @@ object GraphiteReporterFactory extends ReporterFactory[GraphiteReporter, Graphit
           case Graphite => new graphite.Graphite(c.host, c.port)
           case GraphiteUDP => new graphite.GraphiteUDP(c.host, c.port)
           case GraphiteRabbitMQ(user, pwd, exch) => new graphite.GraphiteRabbitMQ(
-            c.host,
-            c.port,
-            user,
-            pwd,
-            exch
+            c.host, c.port, user, pwd, exch
           )
           case PickledGraphite(batchSize) => new graphite.PickledGraphite(
-            c.host,
-            c.port,
-            batchSize
+            c.host, c.port, batchSize
           )
         }
 
-        val reporter = GraphiteReporter
-          .forRegistry(registry)
+        val reporter = GraphiteReporter.forRegistry(registry)
           .convertDurationsTo(c.durationUnit)
           .convertRatesTo(c.rateUnit)
           .prefixedWith(c.prefix)
