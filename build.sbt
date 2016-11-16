@@ -1,11 +1,14 @@
 name := "metrics-reporter-play"
-organization in ThisBuild := "de.khamrakulov"
+organization in ThisBuild := "de.khamrakulov.metrics-reporter-play"
 
 scalaVersion in ThisBuild := "2.11.8"
 
 crossScalaVersions in ThisBuild := Seq("2.11.8")
 
 scalacOptions in ThisBuild := Seq("-deprecation", "-unchecked", "-feature")
+
+resolvers in ThisBuild += Resolver.typesafeRepo("release")
+resolvers in ThisBuild += Resolver.jcenterRepo
 
 val metricsVersion = "3.1.2"
 val playVersion = "2.5.3"
@@ -24,7 +27,7 @@ lazy val root = Project(
   aggregate = Seq(core, graphite)
 ).dependsOn(core, graphite)
 
-lazy val core = project in file("core")
+lazy val core = (project in file("core"))
 
 lazy val graphite = (project in file("graphite")).settings(
   libraryDependencies ++= Seq(
