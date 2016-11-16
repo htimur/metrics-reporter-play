@@ -116,4 +116,9 @@ metrics {
 | host     | localhost | The hostname of the Graphite server to report to.      |
 | port     | 8080      | The stream to write to. One of stdout or stderr.       |
 | prefix   | (none)    | The prefix for Metric key names to report to Graphite. |
-| sender   | graphite  | Sender that is used to send metrics to Graphite.        |
+| sender   | graphite  | Sender that is used to send metrics to Graphite.       |
+
+### TODO
+
+* Add more reporters
+* Better Future support
