@@ -8,4 +8,4 @@ bintrayOrganization in ThisBuild := Some("htimur")
 
 bintrayReleaseOnPublish in ThisBuild := isSnapshot.value
 
-licenses in ThisBuild += ("MIT", url("http://opensource.org/licenses/MIT"))
+licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
