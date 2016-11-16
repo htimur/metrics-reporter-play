@@ -4,7 +4,6 @@ import bintray.BintrayKeys._
 
 object Common {
   lazy val settings = Seq(
-    publishMavenStyle := false,
     bintrayReleaseOnPublish := isSnapshot.value,
     bintrayPackage := "metrics-reporter-play",
     licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
