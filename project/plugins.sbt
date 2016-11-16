@@ -1,6 +1,7 @@
 
 resolvers in ThisBuild += Resolver.typesafeRepo("release")
-resolvers in ThisBuild += Resolver.bintrayRepo("breadfan", "maven")
+resolvers in ThisBuild += Resolver.jcenterRepo
+//resolvers in ThisBuild += Resolver.bintrayRepo("breadfan", "maven")
 
 addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0")
 
