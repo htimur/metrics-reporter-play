@@ -21,15 +21,18 @@ libraryDependencies in ThisBuild ++= Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
 )
 
-lazy val root = Project(
-  id = "root",
-  base = file("."),
-  aggregate = Seq(core, graphite)
-).dependsOn(core, graphite)
+lazy val root = (project in file("."))
+  .settings(
+    publish := {}
+  )
+  .aggregate(core, graphite)
 
-lazy val core = (project in file("core"))
+lazy val core = (project in file("core")).settings(
+  name := "reporter-core"
+)
 
 lazy val graphite = (project in file("graphite")).settings(
+  name := "reporter-graphite",
   libraryDependencies ++= Seq(
     "io.dropwizard.metrics" % "metrics-graphite" % metricsVersion
   )

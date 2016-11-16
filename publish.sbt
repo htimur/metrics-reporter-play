@@ -1,9 +1,11 @@
-publishMavenStyle in bintray in ThisBuild := false
+publishMavenStyle in ThisBuild := false
 
-bintrayRepository in bintray in ThisBuild := "maven"
+bintrayRepository in ThisBuild := "maven"
 
-bintrayOrganization in bintray in ThisBuild := Some("htimur")
+bintrayPackage in ThisBuild := "metrics-reporter-play"
 
-bintrayReleaseOnPublish in bintray in ThisBuild := isSnapshot.value
+bintrayOrganization in ThisBuild := Some("htimur")
 
-licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
+bintrayReleaseOnPublish in ThisBuild := isSnapshot.value
+
+licenses in ThisBuild += ("MIT", url("http://opensource.org/licenses/MIT"))
