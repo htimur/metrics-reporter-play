@@ -1,11 +1,15 @@
+publishMavenStyle in ThisBuild := true
+
+publishArtifact in ThisBuild := true
+
+publishArtifact in Test := false
+
 publishMavenStyle in ThisBuild := false
 
-bintrayRepository in ThisBuild := "maven"
+bintrayRepository in bintray := "maven"
 
-bintrayPackage in ThisBuild := "metrics-reporter-play"
+bintrayPackage in bintray := "metrics-reporter-play"
 
-bintrayOrganization in ThisBuild := Some("htimur")
-
-bintrayReleaseOnPublish in ThisBuild := isSnapshot.value
+bintrayReleaseOnPublish in bintray := isSnapshot.value
 
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
