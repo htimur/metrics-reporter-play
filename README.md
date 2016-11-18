@@ -154,4 +154,3 @@ metrics {
 ### TODO
 
 * Add more reporters
-* Better Future support
