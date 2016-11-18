@@ -118,6 +118,39 @@ metrics {
 | prefix   | (none)    | The prefix for Metric key names to report to Graphite. |
 | sender   | graphite  | Sender that is used to send metrics to Graphite.       |
 
+##### Ganglia Reporter
+
+```hocon
+metrics {
+  reporters = [
+    {
+      type: "ganglia"
+      host: localhost
+      port: 8649
+      mode: unicast
+      ttl: 1
+      uuid: (none)
+      spoof: "localhost:8649"
+      tmax: 60
+      dmax: 0
+      prefix: <prefix>
+    }
+  ]
+}
+```
+
+| Name     | Default   | Description                                                                                                |
+| :---     | :---      | :---                                                                                                       |
+| host     | localhost | The hostname (or group) of the Ganglia server(s) to report to.                                             |
+| port     | 8649      | The port of the Ganglia server(s) to report to.                                                            |
+| mode     | unicast   | The UDP addressing mode to announce the metrics with. One of unicast or multicast.                         |
+| ttl      | 1         | The time-to-live of the UDP packets for the announced metrics.                                             |
+| uuid     | (none)    | The UUID to tag announced metrics with.                                                                    |
+| spoof    | (none)    | The hostname and port to use instead of this nodes for the announced metrics. In the format hostname:port. |
+| tmax     | 60        | The tmax value to announce metrics with.                                                                   |
+| dmax     | 0         | The dmax value to announce metrics with.                                                                   |
+| prefix   | (none)    | The prefix for Metric key names to report to Graphite.                                                     |
+
 ### TODO
 
 * Add more reporters
