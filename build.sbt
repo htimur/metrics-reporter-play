@@ -28,3 +28,12 @@ lazy val graphite = (project in file("graphite"))
     )
   ).dependsOn(core)
 
+lazy val ganglia = (project in file("ganglia"))
+  .settings(Common.settings)
+  .settings(
+    name := "reporter-ganglia",
+    libraryDependencies ++= Common.libraryDependencies ++ Seq(
+      "io.dropwizard.metrics" % "metrics-ganglia" % Common.metricsVersion
+    )
+  ).dependsOn(core)
+
