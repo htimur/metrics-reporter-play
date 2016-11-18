@@ -10,18 +10,49 @@ import play.api.{Configuration, Logger}
 import scala.concurrent.duration.{Duration, _}
 
 /**
+  * Graphite Sender
+  *
   * @author Timur Khamrakulov <timur.khamrakulov@gmail.com>.
   */
 sealed trait GraphiteSender
 
+/**
+  * Default Graphite sender
+  */
 case object Graphite extends GraphiteSender
 
+/**
+  * UDP Graphite sender
+  */
 case object GraphiteUDP extends GraphiteSender
 
+/**
+  * Pickled Graphite sender
+  *
+  * @param batchSize the batch size to send
+  */
 case class PickledGraphite(batchSize: Int) extends GraphiteSender
 
+/**
+  * RabbitMQ Graphite sender
+  *
+  * @param rabbitUser RabbitMQ user
+  * @param rabbitPassword RabbitMQ password
+  * @param exchange RabbitMQ exchange
+  */
 case class GraphiteRabbitMQ(rabbitUser: String, rabbitPassword: String, exchange: String) extends GraphiteSender
 
+/***
+  * Graphite reporter config
+  *
+  * @param durationUnit The unit to report durations as.
+  * @param rateUnit The unit to report rates as.
+  * @param frequency The frequency to report metrics.
+  * @param host The hostname of the Graphite server to report to.
+  * @param port The port of the Graphite server to report to.
+  * @param prefix The prefix for Metric key names to report to Graphite.
+  * @param sender Sender configuration
+  */
 case class GraphiteReporterConfig(durationUnit: TimeUnit,
                                   rateUnit: TimeUnit,
                                   frequency: Duration,
@@ -30,8 +61,12 @@ case class GraphiteReporterConfig(durationUnit: TimeUnit,
                                   prefix: String,
                                   sender: GraphiteSender) extends ReporterConfig
 
+/**
+  * Graphite reporter factory
+  */
 object GraphiteReporterFactory extends ReporterFactory[GraphiteReporter, GraphiteReporterConfig] {
   private val logger = Logger(GraphiteReporterFactory.getClass)
+
   implicit val pickledGraphiteValidator = validator[PickledGraphite] { c =>
     c.batchSize should be >= 10
   }

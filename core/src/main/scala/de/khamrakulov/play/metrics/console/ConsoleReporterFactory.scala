@@ -13,6 +13,12 @@ import scala.concurrent.duration._
 
 /**
   * @author Timur Khamrakulov <timur.khamrakulov@gmail.com>.
+  *
+  * @param durationUnit The unit to report durations as.
+  * @param rateUnit The unit to report rates as.
+  * @param frequency The frequency to report metrics.
+  * @param timeZone The timezone to display dates/times for.
+  * @param output The stream to write to. One of stdout or stderr.
   */
 case class ConsoleReporterConfig(durationUnit: TimeUnit,
                                  rateUnit: TimeUnit,
@@ -20,6 +26,9 @@ case class ConsoleReporterConfig(durationUnit: TimeUnit,
                                  timeZone: ZoneId,
                                  output: String) extends ReporterConfig
 
+/**
+  * Console reporter factory
+  */
 object ConsoleReporterFactory extends ReporterFactory[ConsoleReporter, ConsoleReporterConfig] {
   private val logger = Logger(classOf[ConsoleReporterConfig])
 
