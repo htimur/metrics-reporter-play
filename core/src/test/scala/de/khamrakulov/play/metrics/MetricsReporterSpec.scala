@@ -30,7 +30,7 @@ class MetricsReporterSpec extends FlatSpec with Matchers {
     reporters.head shouldBe a[ConsoleReporter]
   }
 
-  it should "return none if reporters are not defined" in {
+  it should "return empty list if reporters are not defined" in {
     val module = new MetricsReporter()
     val reporters1 = module.createReporters(Configuration(), new MetricRegistry())
 

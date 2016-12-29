@@ -1,7 +1,6 @@
 package de.khamrakulov.play.metrics
 
 import com.codahale.metrics.{MetricRegistry, ScheduledReporter, SharedMetricRegistries}
-import com.kenshoo.play.metrics.{DisabledMetrics, Metrics, MetricsImpl}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment, Logger}
 
@@ -23,7 +22,7 @@ class MetricsReporter extends Module {
     */
   def getFactories(configs: java.util.List[Configuration]): Map[String, Class[_ <: ReporterFactory[ScheduledReporter, _]]] = configs.map { c =>
     val reporterType = c.getString("type").get
-    val factory = Class.forName(c.getString("path").get + "$").asSubclass(classOf[ReporterFactory[ScheduledReporter, _]])
+    val factory = Class.forName(c.getString("path").get).asSubclass(classOf[ReporterFactory[ScheduledReporter, _]])
     reporterType -> factory
   }.toMap[String, Class[_ <: ReporterFactory[ScheduledReporter, _]]]
 
@@ -31,7 +30,7 @@ class MetricsReporter extends Module {
     * Crete reporter instances that are specified in configuration
     *
     * @param configuration application configuration
-    * @param registry metric registry to use
+    * @param registry      metric registry to use
     * @return the list of reporters
     */
   def createReporters(configuration: Configuration, registry: MetricRegistry): List[ScheduledReporter] =
@@ -66,7 +65,7 @@ class MetricsReporter extends Module {
     * The configuration and environment a provided for the purpose of producing dynamic bindings, for example, if what
     * gets bound depends on some configuration, this may be read to control that.
     *
-    * @param environment The environment
+    * @param environment   The environment
     * @param configuration The configuration
     * @return A sequence of bindings
     */
@@ -76,17 +75,6 @@ class MetricsReporter extends Module {
     )
 
     createReporters(configuration, registry)
-
-    if (configuration.getBoolean("metrics.enabled").getOrElse(true)) {
-      Seq(
-        bind[MetricRegistry].toInstance(registry),
-        bind[Metrics].to[MetricsImpl].eagerly
-      )
-    } else {
-      Seq(
-        bind[MetricRegistry].toInstance(registry),
-        bind[Metrics].to[DisabledMetrics].eagerly
-      )
-    }
+    Seq()
   }
 }

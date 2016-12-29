@@ -10,7 +10,7 @@ lazy val root = (project in file("."))
   .settings(
     publish := {}
   )
-  .aggregate(core, graphite)
+  .aggregate(core, graphite, ganglia)
 
 lazy val core = (project in file("core"))
   .settings(Common.settings)

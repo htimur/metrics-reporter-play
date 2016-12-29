@@ -10,11 +10,11 @@ object Common {
   )
 
   val metricsVersion = "3.1.2"
-  val playVersion = "2.5.3"
+  val playVersion = "2.5.10"
 
   lazy val libraryDependencies = Seq(
     "com.typesafe.play" %% "play" % playVersion % Provided,
-    "de.threedimensions" %% "metrics-play" % "2.5.13",
+    "io.dropwizard.metrics" % "metrics-core" % "3.1.2" % Provided,
     "com.wix" %% "accord-core" % "0.6",
     //test
     "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test

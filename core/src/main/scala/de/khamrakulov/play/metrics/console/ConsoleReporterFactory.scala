@@ -32,7 +32,7 @@ case class ConsoleReporterConfig(durationUnit: TimeUnit,
 object ConsoleReporterFactory extends ReporterFactory[ConsoleReporter, ConsoleReporterConfig] {
   private val logger = Logger(classOf[ConsoleReporterConfig])
 
-  implicit val consoleReporterConfigValidator = validator[ConsoleReporterConfig] { c =>
+  private implicit val consoleReporterConfigValidator = validator[ConsoleReporterConfig] { c =>
     c.durationUnit is notNull
     c.rateUnit is notNull
     c.frequency is notNull
@@ -59,7 +59,7 @@ object ConsoleReporterFactory extends ReporterFactory[ConsoleReporter, ConsoleRe
     }
   }
 
-  override def config(conf: Configuration) = {
+  override def config(conf: Configuration): ConsoleReporterConfig = {
     val durationUnit = timeUnits.getOrElse(conf.getString("durationUnit").getOrElse("milliseconds"), MILLISECONDS)
     val rateUnit = timeUnits.getOrElse(conf.getString("rateUnit").getOrElse("seconds"), SECONDS)
     val frequency = Duration(conf.getString("frequency").getOrElse("1 minute"))
