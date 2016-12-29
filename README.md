@@ -4,6 +4,7 @@
 ## Dependencies
 
 * [Play Framework](https://github.com/playframework/playframework)
+* [Dropwizard Metrics](https://github.com/dropwizard/metrics)
 
 # Quick Start
 
@@ -15,8 +16,9 @@ SBT:
 
 ```scala
 libraryDependencies += Seq(
-  "com.typesafe.play" %% "play" % "2.5.3",
-  "de.khamrakulov.metrics-reporter-play" %% "reporter-core" % "1.0.0"
+  "com.typesafe.play" %% "play" % "2.5.10",
+  "io.dropwizard.metrics" % "metrics-core" % "3.1.2",
+  "de.khamrakulov.metrics-reporter-play" %% "reporter-core" % "1.0.2"
 )
 ```
 
@@ -25,14 +27,14 @@ Maven:
 <dependency>
   <groupId>de.khamrakulov.metrics-reporter-play</groupId>
   <artifactId>reporter-core_2.11</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.2</version>
   <type>pom</type>
 </dependency>
 ```
 
 Gradle:
 ```groovy
-compile 'de.khamrakulov.metrics-reporter-play:reporter-core_2.11:1.0.0'
+compile 'de.khamrakulov.metrics-reporter-play:reporter-core_2.11:1.0.2'
 ```
 
 The module `MetricsReporter` will be automatically enabled.
