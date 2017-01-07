@@ -1,6 +1,7 @@
 name := "metrics-reporter-play"
 organization in ThisBuild := "de.khamrakulov.metrics-reporter-play"
 scalaVersion in ThisBuild := "2.11.8"
+crossScalaVersions := Seq("2.11.8")
 scalacOptions in ThisBuild := Seq("-deprecation", "-unchecked", "-feature")
 
 resolvers in ThisBuild += Resolver.typesafeRepo("release")
