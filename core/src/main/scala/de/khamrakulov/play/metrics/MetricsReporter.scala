@@ -14,17 +14,20 @@ import scala.collection.JavaConversions._
 class MetricsReporter extends Module {
   private val logger = Logger(classOf[MetricsReporter])
 
+  private type ReporterFactoryClass = Class[_ <: ReporterFactory[ScheduledReporter, _]]
+
   /**
     * Collect type -> class map from factories in configuration
     *
     * @param configs factory configurations
     * @return the mapping of type to factory class
     */
-  def getFactories(configs: java.util.List[Configuration]): Map[String, Class[_ <: ReporterFactory[ScheduledReporter, _]]] = configs.map { c =>
-    val reporterType = c.getString("type").get
-    val factory = Class.forName(c.getString("path").get).asSubclass(classOf[ReporterFactory[ScheduledReporter, _]])
-    reporterType -> factory
-  }.toMap[String, Class[_ <: ReporterFactory[ScheduledReporter, _]]]
+  private[metrics] def getFactories(configs: java.util.List[Configuration]): Map[String, ReporterFactoryClass] =
+    configs.map { c =>
+      val reporterType = c.getString("type").get
+      val factory = Class.forName(c.getString("path").get).asSubclass(classOf[ReporterFactory[ScheduledReporter, _]])
+      reporterType -> factory
+    }.toMap[String, Class[_ <: ReporterFactory[ScheduledReporter, _]]]
 
   /**
     * Crete reporter instances that are specified in configuration
@@ -33,7 +36,7 @@ class MetricsReporter extends Module {
     * @param registry      metric registry to use
     * @return the list of reporters
     */
-  def createReporters(configuration: Configuration, registry: MetricRegistry): List[ScheduledReporter] =
+  private[metrics] def createReporters(configuration: Configuration, registry: MetricRegistry): List[ScheduledReporter] =
     configuration.getConfig("metrics") match {
       case Some(conf) =>
         val factories = getFactories(conf.getConfigList("factories").get)

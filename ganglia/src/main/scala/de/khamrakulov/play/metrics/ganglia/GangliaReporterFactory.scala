@@ -6,6 +6,7 @@ import com.codahale.metrics.MetricRegistry
 import com.codahale.metrics.ganglia.GangliaReporter
 import com.wix.accord._
 import com.wix.accord.dsl._
+import com.wix.accord.transform.ValidationTransform.TransformedValidator
 import de.khamrakulov.play.metrics.{ReporterConfig, ReporterFactory}
 import info.ganglia.gmetric4j.gmetric.GMetric
 import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode
@@ -28,7 +29,6 @@ import scala.concurrent.duration.{Duration, _}
   * @param spoof        The hostname and port to use instead of this nodes for the announced metrics. In the format hostname:port.
   * @param tmax         The tmax value to announce metrics with.
   * @param dmax         The dmax value to announce metrics with.
-  *
   * @author Timur Khamrakulov <timur.khamrakulov@gmail.com>.
   */
 case class GangliaReporterConfig(durationUnit: TimeUnit,
@@ -52,18 +52,19 @@ object GangliaReporterFactory extends ReporterFactory[GangliaReporter, GangliaRe
 
   private val logger = Logger(GangliaReporterFactory.getClass)
 
-  implicit val gangliaReporterConfigValidator = validator[GangliaReporterConfig] { c =>
-    c.durationUnit is notNull
-    c.rateUnit is notNull
-    c.frequency is notNull
-    c.host is notEmpty
-    c.prefix is notNull
-    (c.port should be >= 1) and (c.port should be <= 65535)
-    c.mode is in(UDPAddressingMode.UNICAST, UDPAddressingMode.MULTICAST)
-    c.ttl should be >= 0
-    c.tmax should be >= 0
-    c.dmax should be >= 0
-  }
+  implicit val gangliaReporterConfigValidator: TransformedValidator[GangliaReporterConfig] =
+    validator[GangliaReporterConfig] { c =>
+      c.durationUnit is notNull
+      c.rateUnit is notNull
+      c.frequency is notNull
+      c.host is notEmpty
+      c.prefix is notNull
+      (c.port should be >= 1) and (c.port should be <= 65535)
+      c.mode is in(UDPAddressingMode.UNICAST, UDPAddressingMode.MULTICAST)
+      c.ttl should be >= 0
+      c.tmax should be >= 0
+      c.dmax should be >= 0
+    }
 
   override def config(conf: Configuration): GangliaReporterConfig = {
     val durationUnit = timeUnits.getOrElse(conf.getString("durationUnit").getOrElse("milliseconds"), MILLISECONDS)

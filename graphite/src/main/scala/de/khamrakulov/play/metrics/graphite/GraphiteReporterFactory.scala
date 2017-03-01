@@ -3,6 +3,7 @@ package de.khamrakulov.play.metrics.graphite
 import com.codahale.metrics.graphite.GraphiteReporter
 import com.codahale.metrics.{MetricFilter, MetricRegistry, graphite}
 import com.wix.accord.dsl._
+import com.wix.accord.transform.ValidationTransform.TransformedValidator
 import com.wix.accord.{Failure, Success, _}
 import de.khamrakulov.play.metrics.{ReporterConfig, ReporterFactory}
 import play.api.{Configuration, Logger}
@@ -36,22 +37,24 @@ case class PickledGraphite(batchSize: Int) extends GraphiteSender
 /**
   * RabbitMQ Graphite sender
   *
-  * @param rabbitUser RabbitMQ user
+  * @param rabbitUser     RabbitMQ user
   * @param rabbitPassword RabbitMQ password
-  * @param exchange RabbitMQ exchange
+  * @param exchange       RabbitMQ exchange
   */
-case class GraphiteRabbitMQ(rabbitUser: String, rabbitPassword: String, exchange: String) extends GraphiteSender
+case class GraphiteRabbitMQ(rabbitUser: String,
+                            rabbitPassword: String,
+                            exchange: String) extends GraphiteSender
 
-/***
+/** *
   * Graphite reporter config
   *
   * @param durationUnit The unit to report durations as.
-  * @param rateUnit The unit to report rates as.
-  * @param frequency The frequency to report metrics.
-  * @param host The hostname of the Graphite server to report to.
-  * @param port The port of the Graphite server to report to.
-  * @param prefix The prefix for Metric key names to report to Graphite.
-  * @param sender Sender configuration
+  * @param rateUnit     The unit to report rates as.
+  * @param frequency    The frequency to report metrics.
+  * @param host         The hostname of the Graphite server to report to.
+  * @param port         The port of the Graphite server to report to.
+  * @param prefix       The prefix for Metric key names to report to Graphite.
+  * @param sender       Sender configuration
   */
 case class GraphiteReporterConfig(durationUnit: TimeUnit,
                                   rateUnit: TimeUnit,
@@ -67,24 +70,28 @@ case class GraphiteReporterConfig(durationUnit: TimeUnit,
 object GraphiteReporterFactory extends ReporterFactory[GraphiteReporter, GraphiteReporterConfig] {
   private val logger = Logger(GraphiteReporterFactory.getClass)
 
-  implicit val pickledGraphiteValidator = validator[PickledGraphite] { c =>
-    c.batchSize should be >= 10
-  }
+  implicit val pickledGraphiteValidator: TransformedValidator[PickledGraphite] =
+    validator[PickledGraphite] { c =>
+      c.batchSize should be >= 10
+    }
 
-  implicit val graphiteRabbitMQValidator = validator[GraphiteRabbitMQ] { c =>
-    c.exchange is notEmpty
-    c.rabbitUser is notEmpty
-    c.rabbitPassword is notEmpty
-  }
-  implicit val graphiteReporterConfigValidator = validator[GraphiteReporterConfig] { c =>
-    c.durationUnit is notNull
-    c.rateUnit is notNull
-    c.frequency is notNull
-    c.host is notEmpty
-    c.sender is notNull
+  implicit val graphiteRabbitMQValidator: TransformedValidator[GraphiteRabbitMQ] =
+    validator[GraphiteRabbitMQ] { c =>
+      c.exchange is notEmpty
+      c.rabbitUser is notEmpty
+      c.rabbitPassword is notEmpty
+    }
 
-    (c.port should be >= 1) and (c.port should be <= 65535)
-  }
+  implicit val graphiteReporterConfigValidator: TransformedValidator[GraphiteReporterConfig] =
+    validator[GraphiteReporterConfig] { c =>
+      c.durationUnit is notNull
+      c.rateUnit is notNull
+      c.frequency is notNull
+      c.host is notEmpty
+      c.sender is notNull
+
+      (c.port should be >= 1) and (c.port should be <= 65535)
+    }
 
   override def config(conf: Configuration): GraphiteReporterConfig = {
     val durationUnit = timeUnits.getOrElse(conf.getString("durationUnit").getOrElse("milliseconds"), MILLISECONDS)
