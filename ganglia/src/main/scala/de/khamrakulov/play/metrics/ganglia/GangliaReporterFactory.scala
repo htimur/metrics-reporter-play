@@ -7,7 +7,7 @@ import com.codahale.metrics.ganglia.GangliaReporter
 import com.wix.accord._
 import com.wix.accord.dsl._
 import com.wix.accord.transform.ValidationTransform.TransformedValidator
-import de.khamrakulov.play.metrics.{ReporterConfig, ReporterFactory}
+import de.khamrakulov.play.metrics.{MetricReporter, ReporterConfig, ReporterFactory}
 import info.ganglia.gmetric4j.gmetric.GMetric
 import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode
 import play.api.{Configuration, Logger}
@@ -48,7 +48,7 @@ case class GangliaReporterConfig(durationUnit: TimeUnit,
 /**
   * Ganglia reporter factory
   */
-object GangliaReporterFactory extends ReporterFactory[GangliaReporter, GangliaReporterConfig] {
+object GangliaReporterFactory extends ReporterFactory[GangliaReporterConfig] {
 
   private val logger = Logger(GangliaReporterFactory.getClass)
 
@@ -86,7 +86,7 @@ object GangliaReporterFactory extends ReporterFactory[GangliaReporter, GangliaRe
     GangliaReporterConfig(durationUnit, rateUnit, frequency, host, port, mode, ttl, prefix, uuid, spoof, tmax, dmax)
   }
 
-  override def apply(registry: MetricRegistry, conf: Configuration): Option[GangliaReporter] = {
+  override def apply(registry: MetricRegistry, conf: Configuration): Option[MetricReporter] = {
     val c = config(conf)
 
     validate(c) match {
@@ -108,7 +108,13 @@ object GangliaReporterFactory extends ReporterFactory[GangliaReporter, GangliaRe
           .withTMax(c.tmax)
           .build(ganglia)
 
-        Some(reporter)
+        Some(MetricReporter(
+          () => reporter.start(c.frequency.length, c.frequency.unit),
+          () => {
+            reporter.stop()
+            ganglia.close()
+          }
+        ))
       case Failure(violations) =>
         violations.foreach { v => logger.error(s"${v.description} ${v.constraint}") }
         None

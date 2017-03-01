@@ -1,6 +1,6 @@
 package de.khamrakulov.play.metrics
 
-import com.codahale.metrics.{MetricRegistry, ScheduledReporter, SharedMetricRegistries}
+import com.codahale.metrics.{MetricRegistry, SharedMetricRegistries}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment, Logger}
 
@@ -11,10 +11,10 @@ import scala.collection.JavaConversions._
   *
   * @author Timur Khamrakulov <timur.khamrakulov@gmail.com>.
   */
-class MetricsReporter extends Module {
-  private val logger = Logger(classOf[MetricsReporter])
+class MetricsReporterModule extends Module {
+  private val logger = Logger(classOf[MetricsReporterModule])
 
-  private type ReporterFactoryClass = Class[_ <: ReporterFactory[ScheduledReporter, _]]
+  private type ReporterFactoryClass = Class[_ <: ReporterFactory[_]]
 
   /**
     * Collect type -> class map from factories in configuration
@@ -25,9 +25,9 @@ class MetricsReporter extends Module {
   private[metrics] def getFactories(configs: java.util.List[Configuration]): Map[String, ReporterFactoryClass] =
     configs.map { c =>
       val reporterType = c.getString("type").get
-      val factory = Class.forName(c.getString("path").get).asSubclass(classOf[ReporterFactory[ScheduledReporter, _]])
+      val factory = Class.forName(c.getString("path").get).asSubclass(classOf[ReporterFactory[_]])
       reporterType -> factory
-    }.toMap[String, Class[_ <: ReporterFactory[ScheduledReporter, _]]]
+    }.toMap[String, Class[_ <: ReporterFactory[_]]]
 
   /**
     * Crete reporter instances that are specified in configuration
@@ -36,7 +36,7 @@ class MetricsReporter extends Module {
     * @param registry      metric registry to use
     * @return the list of reporters
     */
-  private[metrics] def createReporters(configuration: Configuration, registry: MetricRegistry): List[ScheduledReporter] =
+  private[metrics] def createReporters(configuration: Configuration, registry: MetricRegistry): List[MetricReporter] =
     configuration.getConfig("metrics") match {
       case Some(conf) =>
         val factories = getFactories(conf.getConfigList("factories").get)
@@ -45,17 +45,17 @@ class MetricsReporter extends Module {
             val reporterType = c.getString("type").get
             val obj = factories(reporterType)
               .getField("MODULE$")
-              .get(classOf[ReporterFactory[ScheduledReporter, _]])
-              .asInstanceOf[ReporterFactory[ScheduledReporter, _]]
+              .get(classOf[ReporterFactory[_]])
+              .asInstanceOf[ReporterFactory[_]]
             obj.apply(registry, c)
           }.toList
           case None =>
             logger.error("Reporters are not defined")
-            List.empty[ScheduledReporter]
+            List.empty[MetricReporter]
         }
       case _ =>
         logger.error("Metrics config is not defined")
-        List.empty[ScheduledReporter]
+        List.empty[MetricReporter]
     }
 
   /**
@@ -74,10 +74,16 @@ class MetricsReporter extends Module {
     */
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
     val registry = SharedMetricRegistries.getOrCreate(
-      configuration.getString("metrics.registry").getOrElse("default")
+      configuration.getString("metrics.registry").get
     )
 
-    createReporters(configuration, registry)
-    Seq()
+    val reporters = createReporters(configuration, registry)
+
+    Seq(
+      bind[MetricsReporterRegistry]
+        .qualifiedWith("metrics.reporters")
+        .toInstance(MetricsReporterRegistry(reporters)),
+      bind[ReporterLifecycleManager].toSelf.eagerly()
+    )
   }
 }

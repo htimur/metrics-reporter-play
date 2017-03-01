@@ -6,7 +6,7 @@ import java.util.TimeZone
 import com.codahale.metrics.{ConsoleReporter, MetricRegistry}
 import com.wix.accord._
 import com.wix.accord.dsl._
-import de.khamrakulov.play.metrics.{ReporterConfig, ReporterFactory}
+import de.khamrakulov.play.metrics.{MetricReporter, ReporterConfig, ReporterFactory}
 import play.api.{Configuration, Logger}
 
 import scala.concurrent.duration._
@@ -15,10 +15,10 @@ import scala.concurrent.duration._
   * @author Timur Khamrakulov <timur.khamrakulov@gmail.com>.
   *
   * @param durationUnit The unit to report durations as.
-  * @param rateUnit The unit to report rates as.
-  * @param frequency The frequency to report metrics.
-  * @param timeZone The timezone to display dates/times for.
-  * @param output The stream to write to. One of stdout or stderr.
+  * @param rateUnit     The unit to report rates as.
+  * @param frequency    The frequency to report metrics.
+  * @param timeZone     The timezone to display dates/times for.
+  * @param output       The stream to write to. One of stdout or stderr.
   */
 case class ConsoleReporterConfig(durationUnit: TimeUnit,
                                  rateUnit: TimeUnit,
@@ -29,7 +29,7 @@ case class ConsoleReporterConfig(durationUnit: TimeUnit,
 /**
   * Console reporter factory
   */
-object ConsoleReporterFactory extends ReporterFactory[ConsoleReporter, ConsoleReporterConfig] {
+object ConsoleReporterFactory extends ReporterFactory[ConsoleReporterConfig] {
   private val logger = Logger(classOf[ConsoleReporterConfig])
 
   private implicit val consoleReporterConfigValidator = validator[ConsoleReporterConfig] { c =>
@@ -40,7 +40,7 @@ object ConsoleReporterFactory extends ReporterFactory[ConsoleReporter, ConsoleRe
     c.output is in("stdout", "stderr")
   }
 
-  override def apply(registry: MetricRegistry, conf: Configuration): Option[ConsoleReporter] = {
+  override def apply(registry: MetricRegistry, conf: Configuration): Option[MetricReporter] = {
     val c = config(conf)
 
     validate(c) match {
@@ -51,8 +51,11 @@ object ConsoleReporterFactory extends ReporterFactory[ConsoleReporter, ConsoleRe
           .convertRatesTo(c.rateUnit)
           .formattedFor(TimeZone.getTimeZone(c.timeZone))
           .build()
-        reporter.start(c.frequency.length, c.frequency.unit)
-        Some(reporter)
+
+        Some(MetricReporter(
+          () => reporter.start(c.frequency.length, c.frequency.unit),
+          () => reporter.stop()
+        ))
       case Failure(violations) =>
         violations.foreach { v => logger.error(s"${v.description} ${v.constraint}") }
         None

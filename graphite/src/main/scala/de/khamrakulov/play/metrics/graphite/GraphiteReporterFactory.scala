@@ -5,7 +5,7 @@ import com.codahale.metrics.{MetricFilter, MetricRegistry, graphite}
 import com.wix.accord.dsl._
 import com.wix.accord.transform.ValidationTransform.TransformedValidator
 import com.wix.accord.{Failure, Success, _}
-import de.khamrakulov.play.metrics.{ReporterConfig, ReporterFactory}
+import de.khamrakulov.play.metrics.{MetricReporter, ReporterConfig, ReporterFactory}
 import play.api.{Configuration, Logger}
 
 import scala.concurrent.duration.{Duration, _}
@@ -67,7 +67,7 @@ case class GraphiteReporterConfig(durationUnit: TimeUnit,
 /**
   * Graphite reporter factory
   */
-object GraphiteReporterFactory extends ReporterFactory[GraphiteReporter, GraphiteReporterConfig] {
+object GraphiteReporterFactory extends ReporterFactory[GraphiteReporterConfig] {
   private val logger = Logger(GraphiteReporterFactory.getClass)
 
   implicit val pickledGraphiteValidator: TransformedValidator[PickledGraphite] =
@@ -117,7 +117,7 @@ object GraphiteReporterFactory extends ReporterFactory[GraphiteReporter, Graphit
     GraphiteReporterConfig(durationUnit, rateUnit, frequency, host, port, prefix, sender)
   }
 
-  override def apply(registry: MetricRegistry, conf: Configuration): Option[GraphiteReporter] = {
+  override def apply(registry: MetricRegistry, conf: Configuration): Option[MetricReporter] = {
     val c = config(conf)
 
     validate(c) match {
@@ -139,8 +139,14 @@ object GraphiteReporterFactory extends ReporterFactory[GraphiteReporter, Graphit
           .prefixedWith(c.prefix)
           .filter(MetricFilter.ALL)
           .build(sender)
-        reporter.start(c.frequency.length, c.frequency.unit)
-        Some(reporter)
+
+        Some(MetricReporter(
+          () => reporter.start(c.frequency.length, c.frequency.unit),
+          () => {
+            reporter.stop()
+            sender.close()
+          }
+        ))
       case Failure(violations) =>
         violations.foreach { v => logger.error(s"${v.description} ${v.constraint}") }
         None

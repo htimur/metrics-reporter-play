@@ -1,6 +1,6 @@
 package de.khamrakulov.play.metrics
 
-import com.codahale.metrics.{MetricRegistry, ScheduledReporter}
+import com.codahale.metrics.MetricRegistry
 import play.api.Configuration
 
 import scala.concurrent.duration._
@@ -10,7 +10,7 @@ import scala.concurrent.duration._
   *
   * @author Timur Khamrakulov <timur.khamrakulov@gmail.com>.
   */
-trait ReporterFactory[T <: ScheduledReporter, K <: ReporterConfig] {
+trait ReporterFactory[T <: ReporterConfig] {
   val timeUnits = Map(
     "days" -> DAYS,
     "hours" -> HOURS,
@@ -27,7 +27,7 @@ trait ReporterFactory[T <: ScheduledReporter, K <: ReporterConfig] {
     * @param conf reporter config instance
     * @return Reporter configuration
     */
-  def config(conf: Configuration): K
+  def config(conf: Configuration): T
 
   /**
     * Factory method
@@ -36,5 +36,5 @@ trait ReporterFactory[T <: ScheduledReporter, K <: ReporterConfig] {
     * @param conf reporter configuration instance
     * @return optional instance of reporter
     */
-  def apply(registry: MetricRegistry, conf: Configuration): Option[T]
+  def apply(registry: MetricRegistry, conf: Configuration): Option[MetricReporter]
 }
