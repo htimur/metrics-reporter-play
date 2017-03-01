@@ -37,7 +37,11 @@ Gradle:
 compile 'de.khamrakulov.metrics-reporter-play:reporter-core_2.11:1.0.2'
 ```
 
-The module `MetricsReporter` will be automatically enabled.
+Add the module `MetricsReporter` to your `application.conf`
+
+```
+play.modules.enabled += "de.khamrakulov.play.metrics.MetricsReporter"
+```
 
 ### Use it
 
