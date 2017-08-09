@@ -15,7 +15,7 @@ object Common {
   lazy val libraryDependencies = Seq(
     "com.typesafe.play" %% "play" % playVersion % Provided,
     "io.dropwizard.metrics" % "metrics-core" % metricsVersion % Provided,
-    "com.wix" %% "accord-core" % "0.7.1",
+    "com.wix" %% "accord-core" % "0.6.0",
     //test
     "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % Test
   )
