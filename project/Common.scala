@@ -9,15 +9,15 @@ object Common {
     licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
   )
 
-  val metricsVersion = "3.1.2"
-  val playVersion = "2.5.10"
+  val metricsVersion = "3.2.4"
+  val playVersion = "2.5.16"
 
   lazy val libraryDependencies = Seq(
     "com.typesafe.play" %% "play" % playVersion % Provided,
-    "io.dropwizard.metrics" % "metrics-core" % "3.1.2" % Provided,
-    "com.wix" %% "accord-core" % "0.6",
+    "io.dropwizard.metrics" % "metrics-core" % metricsVersion % Provided,
+    "com.wix" %% "accord-core" % "0.7.1",
     //test
-    "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
+    "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % Test
   )
 
 }

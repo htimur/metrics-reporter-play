@@ -5,6 +5,7 @@ project/boot/
 .history
 .cache
 .idea
+.ensime_cache/
 
 # IntelliJ
 /out/
